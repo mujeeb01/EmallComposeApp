@@ -1,7 +1,6 @@
-package com.vaultspay.emallcomposeproject.presentation.screens
+package com.vaultspay.emallcomposeproject.presentation.screens.auth_screens.signin
 
 import android.util.Log
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -19,21 +18,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TextFieldDefaults.indicatorLine
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,10 +55,8 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
@@ -77,55 +73,90 @@ import com.vaultspay.emallcomposeproject.presentation.components.CountryPickerBo
 import com.vaultspay.emallcomposeproject.R
 import com.vaultspay.emallcomposeproject.data.Resource
 import com.vaultspay.emallcomposeproject.domain.models.auth.signin.SigninResponse
+import com.vaultspay.emallcomposeproject.presentation.components.AuthHeaderLogoAnim
+import com.vaultspay.emallcomposeproject.presentation.components.AuthMiddleText
+import com.vaultspay.emallcomposeproject.presentation.components.BuildButton
+import com.vaultspay.emallcomposeproject.presentation.components.BuildInputField
 import com.vaultspay.emallcomposeproject.presentation.components.dialog.LoaderDialog
+import com.vaultspay.emallcomposeproject.presentation.navigation.Screens
 import com.vaultspay.emallcomposeproject.ui.theme.colorGreyExLight
 import com.vaultspay.emallcomposeproject.ui.theme.colorGreyLight
 import com.vaultspay.emallcomposeproject.ui.theme.colorPrimary
 import com.vaultspay.emallcomposeproject.ui.theme.colorPrimaryDark
 import com.vaultspay.emallcomposeproject.ui.theme.textColorDark
-import com.vaultspay.emallcomposeproject.ui.theme.textColorLight
 import com.vaultspay.emallcomposeproject.utils.countryList
 import com.vaultspay.emallcomposeproject.utils.localeToEmoji
 
-var numberCode : String = ""
-var phoneNumber : String = ""
+var numberCode: String = ""
+var phoneNumber: String = ""
 
 @Composable
 fun SigninScreen(navController: NavHostController, viewModel: SigninViewModel = hiltViewModel()) {
     val loginResponseState by viewModel.loginRequest.collectAsState()
 
-    when(loginResponseState) {
+    when (loginResponseState) {
         is Resource.Loading -> Column(modifier = Modifier.fillMaxSize()) {
             LoaderDialog()
         }
+
         is Resource.Success -> {
-            Log.d("signin_api", (loginResponseState as Resource.Success<SigninResponse>).data.message)
+
+            Log.d(
+                "signin_api",
+                (loginResponseState as Resource.Success<SigninResponse>).data.message
+            )
+            LaunchedEffect(key1 = null) {
+                navController.navigate(Screens.Home.route) {
+                    popUpTo(Screens.SignIn.route)
+                }
+            }
+
         }
+
         is Resource.Error -> {
-            Log.d("signin_api", (loginResponseState as Resource.Error<SigninResponse>).error.message.toString())
+            Log.d(
+                "signin_api",
+                (loginResponseState as Resource.Error<SigninResponse>).error.message.toString()
+            )
         }
+
         else -> null
     }
-    Column(modifier = Modifier.fillMaxSize()) {
-        BuildHeaderLogo()
-        BuildMiddleText(modifier = Modifier)
+    val scrollState = rememberScrollState()
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+    ) {
+        //BuildHeaderLogo()
+        AuthHeaderLogoAnim()
+        AuthMiddleText(modifier = Modifier,
+            textBottom = "Sign in to your emall account and enjoy shopping")
         Spacer(modifier = Modifier.height(10.dp))
         BuildEmailNumber(modifier = Modifier)
-        BuildPasswordField(
+        BuildInputField(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(57.dp)
                 .padding(top = 10.dp, start = 20.dp, end = 20.dp),
-            hint = "Password"
+            hint = "Password",
+            isTrailingIcon = true,
+            keyboardType = KeyboardType.Password,
+            onValueChange = {
+
+            }
         )
         BuildForgetPassField(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 10.dp, end = 20.dp)
         )
-        BuildSignInButton(
+        BuildButton(
             modifier = Modifier.fillMaxWidth(),
-            viewModel = viewModel
+            buttonText = "Sign in",
+            onClick = {
+                viewModel.loginRequest(email = "msb.2905@gmail.com", password = "Test@123")
+            }
         )
         Spacer(modifier = Modifier.height(10.dp))
         BuildDividerNText(
@@ -141,6 +172,7 @@ fun SigninScreen(navController: NavHostController, viewModel: SigninViewModel = 
         )
         Spacer(modifier = Modifier.height(20.dp))
         BuildSignUpText(
+            navController,
             modifier = Modifier
                 .fillMaxWidth(),
         )
@@ -158,40 +190,6 @@ fun SigninScreen(navController: NavHostController, viewModel: SigninViewModel = 
         )
     }
 
-}
-
-@Composable
-fun BuildHeaderLogo() {
-    Box(
-        contentAlignment = Alignment.TopEnd,
-        modifier = Modifier
-            .height(265.dp)
-            .fillMaxWidth()
-    ) {
-        LottieAnimations(
-            modifier = Modifier
-        )
-        Image(
-            painter = painterResource(id = R.drawable.emall_logo_bg),
-            contentDescription = "header bg",
-            modifier = Modifier
-                .width(73.dp)
-                .height(73.dp)
-                .align(alignment = Alignment.Center)
-        )
-        IconButton(onClick = {
-            /* Handle navigation icon click */
-        }) {
-            Image(
-                painter = painterResource(id = R.drawable.close),
-                contentDescription = null,
-                modifier = Modifier
-                    .align(alignment = Alignment.Center)
-
-
-            )
-        }
-    }
 }
 
 @Composable
@@ -237,46 +235,6 @@ fun LottieAnimations(modifier: Modifier) {
                         endY = 600f
                     )
                 )
-        )
-    }
-}
-
-@Composable
-fun BuildMiddleText(modifier: Modifier) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Row(
-            modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-        ) {
-            Text(
-                text = "Hello, welcome to ",
-                color = textColorDark,
-                fontSize = 13.56.sp,
-                lineHeight = 13.3.sp,
-                textAlign = TextAlign.Center,
-                fontFamily = FontFamily(Font(R.font.poppins_bold)),
-            )
-            Image(
-                painter = painterResource(id = R.drawable.emall_logo),
-                contentDescription = "emall logo",
-                modifier.height(14.dp),
-                alignment = Alignment.Center
-            )
-            Text(
-                text = "!",
-                color = textColorDark,
-                fontSize = 13.56.sp,
-                lineHeight = 13.3.sp,
-                textAlign = TextAlign.Center,
-                fontFamily = FontFamily(Font(R.font.poppins_bold)),
-            )
-        }
-        Text(
-            text = "Sign in to your emall account and enjoy shopping",
-            color = textColorLight,
-            fontSize = 9.6.sp,
-            fontFamily = FontFamily(Font(R.font.poppins_medium)),
         )
     }
 }
@@ -560,7 +518,7 @@ fun BuildEmailField(
     hint: String,
     inputType: Boolean
 ) {
-    val inputValue = remember { mutableStateOf("") }
+    val inputValue = rememberSaveable { mutableStateOf("") }
     val colors = TextFieldDefaults.textFieldColors()
     BasicTextField(
         value = inputValue.value,
@@ -630,73 +588,6 @@ fun BuildEmailField(
 }
 
 @Composable
-fun BuildPasswordField(
-    modifier: Modifier,
-    hint: String
-) {
-    val inputValue = remember { mutableStateOf("") }
-    val interactionSource = remember { MutableInteractionSource() }
-    var isPasswordVisible by remember { mutableStateOf(false) }
-    val trailingIcon = @Composable {
-        IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
-            //{ Icon(imageVector = Icons.Default.AddCircle, contentDescription = "passwordIcon") },
-            Image(
-                if (isPasswordVisible) painterResource(id = R.drawable.password_hide) else painterResource(
-                    id = R.drawable.password_visible
-                ),
-                contentDescription = "password icon",
-            )
-            /*Icon(
-                if (isPasswordVisible) Icons.Default.AddCircle else Icons.Default.Email,
-                contentDescription = "",
-                tint = MaterialTheme.colorScheme.primary
-            )*/
-        }
-    }
-
-    OutlinedTextField(
-        value = inputValue.value,
-        onValueChange = {
-            inputValue.value = it
-        },
-        placeholder = {
-            Text(
-                text = hint,
-                fontSize = 9.6.sp,
-                color = textColorDark,
-                fontFamily = FontFamily(Font(R.font.poppins_medium))
-            )
-        },
-        modifier = modifier
-            .background(Color.Transparent)
-            .border(
-                border = BorderStroke(width = 1.dp, color = colorGreyLight),
-                shape = RoundedCornerShape(size = 4.1.dp)
-            ),
-        colors = OutlinedTextFieldDefaults.colors(
-            cursorColor = colorPrimary,
-            focusedBorderColor = colorGreyLight,
-            disabledBorderColor = colorGreyLight
-        ),
-        keyboardOptions = KeyboardOptions(
-            capitalization = KeyboardCapitalization.None,
-            autoCorrect = true,
-            imeAction = ImeAction.Done,
-            keyboardType = KeyboardType.Password
-        ),
-        textStyle = TextStyle(
-            color = textColorLight,
-            fontSize = 9.6.sp,
-            fontFamily = FontFamily(Font(R.font.poppins_medium))
-        ),
-        trailingIcon = trailingIcon,
-        visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-        maxLines = 1,
-        singleLine = true,
-    )
-}
-
-@Composable
 fun BuildForgetPassField(modifier: Modifier) {
     Text(
         text = "Forget Password?",
@@ -707,34 +598,6 @@ fun BuildForgetPassField(modifier: Modifier) {
         textAlign = TextAlign.End,
         fontFamily = FontFamily(Font(R.font.poppins_bold)),
     )
-}
-
-@Composable
-fun BuildSignInButton(
-    modifier: Modifier,
-    viewModel: SigninViewModel
-) {
-    Button(
-        onClick = {
-            viewModel.loginRequest(email = "msb.2905@gmail.com", password = "Test@123")
-        },
-        enabled = true,
-        shape = RoundedCornerShape(8.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = colorPrimary,
-            contentColor = Color.White
-        ),
-        modifier = modifier.padding(start = 20.dp, top = 20.dp, end = 20.dp)
-    ) {
-        Text(
-            text = "Sign In",
-            modifier = modifier.fillMaxWidth(),
-            color = Color.White,
-            fontSize = 9.6.sp,
-            textAlign = TextAlign.Center,
-            fontFamily = FontFamily(Font(R.font.poppins_bold)),
-        )
-    }
 }
 
 @Composable
@@ -803,7 +666,7 @@ fun BuildSocialIcons(modifier: Modifier) {
 }
 
 @Composable
-fun BuildSignUpText(modifier: Modifier) {
+fun BuildSignUpText(navController: NavHostController, modifier: Modifier) {
     Box(
         modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center
@@ -822,8 +685,9 @@ fun BuildSignUpText(modifier: Modifier) {
             ) {
                 append("Sign Up")
                 addClickableStyle(
-                    onClick = { offset ->
+                    onClick = {
                         // Handle click on "Sign Up" text
+                        navController.navigate(Screens.SignUp.route)
                     }
                 )
             }
@@ -834,6 +698,7 @@ fun BuildSignUpText(modifier: Modifier) {
             modifier = Modifier.clickable { /* Handle click on the entire text if needed */ },
             onClick = { offset ->
                 // Handle click on the entire text if needed
+                navController.navigate(Screens.SignUp.route)
             }
         )
     }

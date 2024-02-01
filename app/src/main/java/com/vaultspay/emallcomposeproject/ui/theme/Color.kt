@@ -17,5 +17,6 @@ val colorGreyLight = Color(237, 237, 237)
 val colorGreyExLight = Color(212, 212, 212)
 val textColorDark = Color(51, 51, 51)
 val textColorLight = Color(115, 115, 115)
+val textColorExtraLight = Color(112, 112, 112)
 
 

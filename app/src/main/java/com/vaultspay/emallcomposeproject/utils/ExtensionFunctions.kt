@@ -15,3 +15,8 @@ fun String.extractErrorMessage(): ResponseError {
         }
     return errorObj
 }
+
+fun isPasswordValid(password: String): Boolean {
+    val passwordRegex = Regex("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@\$!%*?&])[A-Za-z\\d@\$!%*?&]{8,}\$")
+    return password.matches(passwordRegex)
+}

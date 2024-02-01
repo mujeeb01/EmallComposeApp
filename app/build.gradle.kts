@@ -80,6 +80,7 @@ dependencies {
     implementation ("androidx.work:work-runtime-ktx:2.9.0")
     implementation("com.airbnb.android:lottie-compose:4.0.0")
     implementation ("androidx.compose.material:material:1.5.4")
+    implementation ("androidx.navigation:navigation-compose:2.7.6")
 
     //hilt
     implementation("com.google.dagger:hilt-android:2.48")

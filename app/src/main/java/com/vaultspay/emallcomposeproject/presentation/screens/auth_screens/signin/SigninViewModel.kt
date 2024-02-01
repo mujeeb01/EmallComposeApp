@@ -1,21 +1,16 @@
-package com.vaultspay.emallcomposeproject.presentation.screens
+package com.vaultspay.emallcomposeproject.presentation.screens.auth_screens.signin
 
-import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vaultspay.emallcomposeproject.data.Resource
 import com.vaultspay.emallcomposeproject.domain.models.ResponseError
 import com.vaultspay.emallcomposeproject.domain.models.auth.signin.SigninResponse
 import com.vaultspay.emallcomposeproject.domain.repositories.auth.AuthRepository
-import com.vaultspay.emallcomposeproject.utils.SingleLiveEvent
 import com.vaultspay.emallcomposeproject.utils.extractErrorMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

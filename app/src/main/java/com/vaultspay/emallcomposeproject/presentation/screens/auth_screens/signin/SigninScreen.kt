@@ -705,7 +705,7 @@ fun BuildSignUpText(navController: NavHostController, modifier: Modifier) {
 }
 
 @Composable
-private fun AnnotatedString.Builder.addClickableStyle(
+fun AnnotatedString.Builder.addClickableStyle(
     onClick: (offset: Int) -> Unit
 ) {
     addStyle(

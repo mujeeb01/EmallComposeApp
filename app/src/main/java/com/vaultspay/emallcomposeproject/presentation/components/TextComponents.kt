@@ -68,7 +68,7 @@ fun BuildNormalText(modifier: Modifier, value: String) {
         modifier = modifier,
         color = textColorExtraLight,
         fontSize = 7.2.sp,
-        //lineHeight = 13.3.sp,
+        lineHeight = 9.5.sp,
         //textAlign = TextAlign.Center,
         fontFamily = FontFamily(Font(R.font.poppins_regular)),
     )

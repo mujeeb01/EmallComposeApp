@@ -1,6 +1,7 @@
 package com.vaultspay.emallcomposeproject.presentation.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -22,6 +23,7 @@ fun NavGraph() {
         }
         composable(route = Screens.SignUp.route) {
             SignupScreen(
+                navController = navController,
                 backPressed = {
                     navigateSingleTopTo(Screens.SignIn.route, navController)
                 }
